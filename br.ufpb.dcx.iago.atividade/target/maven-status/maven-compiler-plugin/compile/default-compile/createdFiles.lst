@@ -1,0 +1,12 @@
+br/ufpb/dcx/iago/LojaDeJogos/GerenciadorDeUser.class
+br/ufpb/dcx/iago/LojaDeJogos/SaldoInsuficienteException.class
+br/ufpb/dcx/iago/LojaDeJogos/Jogo.class
+br/ufpb/dcx/iago/LojaDeJogos/Main.class
+br/ufpb/dcx/iago/LojaDeJogos/TipoDeJogo.class
+br/ufpb/dcx/iago/LojaDeJogos/Compra.class
+br/ufpb/dcx/iago/LojaDeJogos/GerenteDeJogo.class
+br/ufpb/dcx/iago/LojaDeJogos/JogoJaExisteException.class
+br/ufpb/dcx/iago/LojaDeJogos/User.class
+br/ufpb/dcx/iago/LojaDeJogos/GerenciadorDeJogo.class
+br/ufpb/dcx/iago/LojaDeJogos/GravadorDeDados.class
+br/ufpb/dcx/iago/LojaDeJogos/Gerenciador.class
