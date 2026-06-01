@@ -47,7 +47,7 @@
                 <artifactId>javafx-maven-plugin</artifactId>
                 <version>0.0.8</version>
                 <configuration>
-                    <mainClass>br.ufpb.dcx.iago.LojaDeJogos.exercicio1.Main</mainClass>
+                    <mainClass>br.ufpb.dcx.iago.atividades.exercicio5.Main</mainClass>
                 </configuration>
             </plugin>
         </plugins>

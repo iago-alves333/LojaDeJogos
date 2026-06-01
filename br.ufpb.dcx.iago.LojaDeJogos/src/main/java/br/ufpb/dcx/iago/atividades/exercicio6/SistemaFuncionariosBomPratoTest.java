@@ -1,4 +1,4 @@
-package br.ufpb.dcx.iago.LojaDeJogos.exercicio2;
+package br.ufpb.dcx.iago.atividades.exercicio6;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;

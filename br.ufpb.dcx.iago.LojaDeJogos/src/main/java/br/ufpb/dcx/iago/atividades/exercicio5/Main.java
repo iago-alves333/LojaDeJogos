@@ -1,4 +1,4 @@
-package br.ufpb.dcx.iago.LojaDeJogos.exercicio1;
+package br.ufpb.dcx.iago.atividades.exercicio5;
 
 
 import javafx.application.Application;
