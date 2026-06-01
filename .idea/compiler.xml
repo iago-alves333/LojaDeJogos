@@ -6,7 +6,7 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="br.ufpb.dcx.iago.LojaDeJogos" />
+        <module name="br.ufpb.dcx.iago.atividade" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel target="17" />
