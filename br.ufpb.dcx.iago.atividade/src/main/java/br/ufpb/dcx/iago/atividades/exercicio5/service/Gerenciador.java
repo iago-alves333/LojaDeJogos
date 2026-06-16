@@ -1,4 +1,5 @@
-package br.ufpb.dcx.iago.atividades.exercicio5;
+package br.ufpb.dcx.iago.atividades.exercicio5.service;
+
 import java.util.List;
 
 public interface Gerenciador {

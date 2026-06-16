@@ -1,24 +1,35 @@
 package br.ufpb.dcx.iago.atividades.exercicio5;
 
+import br.ufpb.dcx.iago.atividades.exercicio5.service.GerenteDeJogo;
+import br.ufpb.dcx.iago.atividades.exercicio5.persistence.GravadorDeDados;
+import br.ufpb.dcx.iago.atividades.exercicio5.model.TipoDeJogo;
+import br.ufpb.dcx.iago.atividades.exercicio5.model.Jogo;
+import br.ufpb.dcx.iago.atividades.exercicio5.model.User;
+import br.ufpb.dcx.iago.atividades.exercicio5.model.Compra;
+import br.ufpb.dcx.iago.atividades.exercicio5.exception.DadosInvalidosException;
+import br.ufpb.dcx.iago.atividades.exercicio5.exception.UsuarioNaoSelecionadoException;
 
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import java.io.File;
 import java.util.List;
-
-
+import java.util.stream.Collectors;
 
 public class Main extends Application {
 
     private static final String ARQUIVO_DADOS = "dados_loja.dat";
     private GerenteDeJogo loja = new GerenteDeJogo();
     private GravadorDeDados gravador = new GravadorDeDados(ARQUIVO_DADOS);
+    private User usuarioLogado = null;
 
     private BorderPane root;
 
@@ -29,53 +40,89 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) {
         verificarCarregamentoInicial();
+        inicializarAdmin();
 
         root = new BorderPane();
-        root.setLeft(criarMenuLateral());
-        root.setCenter(telaBoasVindas());
+        root.setCenter(telaLogin());
 
-        Scene scene = new Scene(root, 800, 600);
+        Scene scene = new Scene(root, 1000, 700);
+        try {
+            scene.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
+        } catch (Exception e) {
+            System.err.println("Aviso: style.css não encontrado.");
+        }
+
         primaryStage.setTitle("Sistema de Loja de Jogos");
         primaryStage.setScene(scene);
         primaryStage.show();
     }
 
+    private void inicializarAdmin() {
+        boolean hasAdmin = false;
+        List<Object> users = loja.getGerenciadorDeUser().listarTodos();
+        for (Object obj : users) {
+            User u = (User) obj;
+            if (u.isAdmin()) {
+                hasAdmin = true;
+                break;
+            }
+        }
+        if (!hasAdmin) {
+            try {
+                User admin = new User("admin", 0.0, "admin", true);
+                loja.getGerenciadorDeUser().adicionar(admin);
+            } catch (Exception ignored) { }
+        }
+    }
+
+
     // --- MENU LATERAL ---
     private VBox criarMenuLateral() {
         VBox menu = new VBox(10);
         menu.setPadding(new Insets(20));
-        menu.setStyle("-fx-background-color: #2c3e50;");
-        menu.setPrefWidth(200);
+        menu.getStyleClass().add("sidebar");
+        menu.setPrefWidth(220);
 
         Label lblMenu = new Label("MENU");
-        lblMenu.setStyle("-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 16px;");
+        lblMenu.setStyle("-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 18px;");
 
-        Button btnCadJogo = criarBotao("Cadastrar Jogo");
-        btnCadJogo.setOnAction(e -> root.setCenter(telaCadastrarJogo()));
+        menu.getChildren().add(lblMenu);
 
-        Button btnCadUser = criarBotao("Cadastrar Usuário");
-        btnCadUser.setOnAction(e -> root.setCenter(telaCadastrarUsuario()));
+        if (usuarioLogado != null && usuarioLogado.isAdmin()) {
+            Button btnCadJogo = criarBotao("Cadastrar Jogo");
+            btnCadJogo.setOnAction(e -> root.setCenter(telaCadastrarJogo()));
 
-        Button btnAddSaldo = criarBotao("Adicionar Saldo");
-        btnAddSaldo.setOnAction(e -> root.setCenter(telaAdicionarSaldo()));
+            Button btnCadUser = criarBotao("Cadastrar Usuário");
+            btnCadUser.setOnAction(e -> root.setCenter(telaCadastrarUsuario()));
 
-        Button btnComprar = criarBotao("Realizar Compra");
-        btnComprar.setOnAction(e -> root.setCenter(telaRealizarCompra()));
+            Button btnHistorico = criarBotao("Histórico de Vendas");
+            btnHistorico.setOnAction(e -> root.setCenter(telaListarHistorico()));
 
-        Button btnListarJogos = criarBotao("Catálogo de Jogos");
-        btnListarJogos.setOnAction(e -> root.setCenter(telaListarJogos()));
+            Button btnSalvar = criarBotao("Salvar Dados");
+            btnSalvar.setOnAction(e -> salvarDados());
 
-        Button btnHistorico = criarBotao("Histórico de Vendas");
-        btnHistorico.setOnAction(e -> root.setCenter(telaListarHistorico()));
+            Button btnCarregar = criarBotao("Carregar Dados");
+            btnCarregar.setOnAction(e -> carregarDados());
 
-        Button btnSalvar = criarBotao("Salvar Dados");
-        btnSalvar.setOnAction(e -> salvarDados());
+            menu.getChildren().addAll(btnCadJogo, btnCadUser, btnHistorico, new Separator(), btnSalvar, btnCarregar);
+        } else {
+            Button btnVitrine = criarBotao("Vitrine da Loja");
+            btnVitrine.setOnAction(e -> root.setCenter(telaVitrine()));
 
-        Button btnCarregar = criarBotao("Carregar Dados");
-        btnCarregar.setOnAction(e -> carregarDados());
+            Button btnAddSaldo = criarBotao("Adicionar Saldo");
+            btnAddSaldo.setOnAction(e -> root.setCenter(telaAdicionarSaldo()));
 
-        menu.getChildren().addAll(lblMenu, btnCadJogo, btnCadUser, btnAddSaldo, btnComprar,
-                btnListarJogos, btnHistorico, new Separator(), btnSalvar, btnCarregar);
+            menu.getChildren().addAll(btnVitrine, btnAddSaldo);
+        }
+
+        menu.getChildren().add(new Separator());
+        Button btnSair = criarBotao("Sair");
+        btnSair.setOnAction(e -> {
+            usuarioLogado = null;
+            root.setLeft(null);
+            root.setCenter(telaLogin());
+        });
+        menu.getChildren().add(btnSair);
         return menu;
     }
 
@@ -87,6 +134,55 @@ public class Main extends Application {
 
     // --- TELAS (CENTRO DO BORDERPANE) ---
 
+    private VBox telaLogin() {
+        VBox painel = new VBox(15);
+        painel.setAlignment(Pos.CENTER);
+        painel.setPadding(new Insets(40));
+
+        Label titulo = new Label("LOGIN");
+        titulo.setFont(new Font("Arial", 24));
+
+        TextField txtNome = new TextField();
+        txtNome.setPromptText("Nome de Usuário");
+        txtNome.setMaxWidth(300);
+
+        PasswordField txtSenha = new PasswordField();
+        txtSenha.setPromptText("Senha");
+        txtSenha.setMaxWidth(300);
+
+        Button btnLogin = new Button("Entrar");
+        btnLogin.getStyleClass().add("button-primary");
+        btnLogin.setMaxWidth(300);
+        btnLogin.setOnAction(e -> {
+            String nomeDigitado = txtNome.getText();
+            String senhaDigitada = txtSenha.getText();
+
+            User userValido = null;
+            for (Object obj : loja.getGerenciadorDeUser().listarTodos()) {
+                User u = (User) obj;
+                if (u.getNome().equals(nomeDigitado) && u.getSenha() != null && u.getSenha().equals(senhaDigitada)) {
+                    userValido = u;
+                    break;
+                }
+            }
+
+            if (userValido != null) {
+                usuarioLogado = userValido;
+                root.setLeft(criarMenuLateral());
+                root.setCenter(telaBoasVindas());
+            } else {
+                exibirAlerta(Alert.AlertType.ERROR, "Login Falhou", "Usuário ou senha incorretos.");
+            }
+        });
+
+        Button btnCadastrar = new Button("Criar Nova Conta");
+        btnCadastrar.setMaxWidth(300);
+        btnCadastrar.setOnAction(e -> root.setCenter(telaCadastrarUsuario()));
+
+        painel.getChildren().addAll(titulo, txtNome, txtSenha, btnLogin, new Label("ou"), btnCadastrar);
+        return painel;
+    }
+
     private VBox telaBoasVindas() {
         VBox painel = new VBox();
         painel.setAlignment(Pos.CENTER);
@@ -97,11 +193,11 @@ public class Main extends Application {
     }
 
     private VBox telaCadastrarJogo() {
-        VBox painel = new VBox(10);
-        painel.setPadding(new Insets(20));
+        VBox painel = new VBox(15);
+        painel.setPadding(new Insets(30));
 
         Label titulo = new Label("CADASTRAR NOVO JOGO");
-        titulo.setFont(new Font("Arial", 18));
+        titulo.setFont(new Font("Arial", 22));
 
         TextField txtNome = new TextField();
         txtNome.setPromptText("Nome do Jogo");
@@ -113,20 +209,48 @@ public class Main extends Application {
         comboTipo.getItems().addAll(TipoDeJogo.values());
         comboTipo.setPromptText("Selecione o Tipo");
 
-        Button btnSalvar = new Button("Cadastrar");
+        // Seleção de Imagem
+        final String[] imagemUrl = {null};
+        Button btnImagem = new Button("Selecionar Capa do Jogo");
+        Label lblImagem = new Label("Nenhuma imagem selecionada");
+        ImageView previewImagem = new ImageView();
+        previewImagem.setFitWidth(150);
+        previewImagem.setFitHeight(200);
+        previewImagem.setPreserveRatio(true);
+
+        btnImagem.setOnAction(e -> {
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Selecione a Imagem do Jogo");
+            fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Imagens", "*.png", "*.jpg", "*.jpeg", "*.gif")
+            );
+            File file = fileChooser.showOpenDialog(painel.getScene().getWindow());
+            if (file != null) {
+                imagemUrl[0] = file.toURI().toString();
+                lblImagem.setText(file.getName());
+                previewImagem.setImage(new Image(imagemUrl[0]));
+            }
+        });
+
+        HBox imageBox = new HBox(10, btnImagem, lblImagem);
+        imageBox.setAlignment(Pos.CENTER_LEFT);
+
+        Button btnSalvar = new Button("Cadastrar Jogo");
+        btnSalvar.getStyleClass().add("button-primary");
         btnSalvar.setOnAction(e -> {
             try {
                 String nome = txtNome.getText();
                 double preco = Double.parseDouble(txtPreco.getText());
                 TipoDeJogo tipo = comboTipo.getValue();
 
-                if (nome.isEmpty() || tipo == null) throw new Exception("Preencha todos os campos.");
+                if (nome.isEmpty() || tipo == null) throw new DadosInvalidosException("Preencha todos os campos essenciais.");
 
-                Jogo novoJogo = new Jogo(nome, preco, tipo);
+                Jogo novoJogo = new Jogo(nome, preco, tipo, imagemUrl[0]);
                 loja.getGerenciadorDeJogo().adicionar(novoJogo);
 
                 exibirAlerta(Alert.AlertType.INFORMATION, "Sucesso", "Jogo cadastrado! ID gerado: " + novoJogo.getId());
                 txtNome.clear(); txtPreco.clear(); comboTipo.getSelectionModel().clearSelection();
+                imagemUrl[0] = null; lblImagem.setText("Nenhuma imagem selecionada"); previewImagem.setImage(null);
             } catch (NumberFormatException ex) {
                 exibirAlerta(Alert.AlertType.ERROR, "Erro", "Digite um valor numérico válido para o preço.");
             } catch (Exception ex) {
@@ -134,19 +258,23 @@ public class Main extends Application {
             }
         });
 
-        painel.getChildren().addAll(titulo, new Label("Nome:"), txtNome, new Label("Preço (R$):"), txtPreco, new Label("Categoria:"), comboTipo, btnSalvar);
+        painel.getChildren().addAll(
+            titulo, 
+            new Label("Nome:"), txtNome, 
+            new Label("Preço (R$):"), txtPreco, 
+            new Label("Categoria:"), comboTipo, 
+            new Label("Capa do Jogo:"), imageBox, previewImagem,
+            btnSalvar
+        );
         return painel;
     }
 
     private VBox telaCadastrarUsuario() {
-        VBox painel = new VBox(10);
-        painel.setPadding(new Insets(20));
+        VBox painel = new VBox(15);
+        painel.setPadding(new Insets(30));
 
         Label titulo = new Label("CADASTRAR NOVO USUÁRIO");
-        titulo.setFont(new Font("Arial", 18));
-
-        TextField txtId = new TextField();
-        txtId.setPromptText("ID do Usuário (ex: U01)");
+        titulo.setFont(new Font("Arial", 22));
 
         TextField txtNome = new TextField();
         txtNome.setPromptText("Nome");
@@ -154,26 +282,39 @@ public class Main extends Application {
         TextField txtSaldo = new TextField();
         txtSaldo.setPromptText("Saldo Inicial");
 
-        Button btnSalvar = new Button("Cadastrar");
+        PasswordField txtSenha = new PasswordField();
+        txtSenha.setPromptText("Senha");
+
+        Button btnSalvar = new Button("Cadastrar Usuário");
+        btnSalvar.getStyleClass().add("button-primary");
         btnSalvar.setOnAction(e -> {
             try {
-                String id = txtId.getText();
                 String nome = txtNome.getText();
                 double saldo = Double.parseDouble(txtSaldo.getText());
+                String senha = txtSenha.getText();
 
-                if (id.isEmpty() || nome.isEmpty()) throw new Exception("Preencha todos os campos.");
+                if (nome.isEmpty() || senha.isEmpty()) throw new DadosInvalidosException("Preencha todos os campos.");
 
-                User novoUser = new User(id, nome, saldo);
+                User novoUser = new User(nome, saldo, senha);
                 loja.getGerenciadorDeUser().adicionar(novoUser);
 
-                exibirAlerta(Alert.AlertType.INFORMATION, "Sucesso", "Usuário cadastrado com sucesso!");
-                txtId.clear(); txtNome.clear(); txtSaldo.clear();
+                exibirAlerta(Alert.AlertType.INFORMATION, "Sucesso", "Usuário cadastrado com sucesso! ID gerado: " + novoUser.getId());
+                txtNome.clear(); txtSaldo.clear(); txtSenha.clear();
+            } catch (NumberFormatException ex) {
+                exibirAlerta(Alert.AlertType.ERROR, "Erro", "Digite um valor numérico válido para o saldo.");
             } catch (Exception ex) {
                 exibirAlerta(Alert.AlertType.ERROR, "Erro", ex.getMessage());
             }
         });
 
-        painel.getChildren().addAll(titulo, new Label("ID:"), txtId, new Label("Nome:"), txtNome, new Label("Saldo Inicial (R$):"), txtSaldo, btnSalvar);
+        painel.getChildren().addAll(titulo, new Label("Nome:"), txtNome, new Label("Saldo Inicial (R$):"), txtSaldo, new Label("Senha:"), txtSenha, btnSalvar);
+        
+        if (usuarioLogado == null) {
+            Button btnVoltar = new Button("Voltar para Login");
+            btnVoltar.setOnAction(e -> root.setCenter(telaLogin()));
+            painel.getChildren().add(btnVoltar);
+        }
+        
         return painel;
     }
 
@@ -184,111 +325,138 @@ public class Main extends Application {
         Label titulo = new Label("ADICIONAR SALDO");
         titulo.setFont(new Font("Arial", 18));
 
-        ComboBox<String> comboUser = new ComboBox<>();
-        List<Object> usuarios = loja.getGerenciadorDeUser().listarTodos();
-        for (int i = 0; i < usuarios.size(); i++) {
-            User u = (User) usuarios.get(i);
-            comboUser.getItems().add(String.format("<%02d: %s | Saldo: R$%.2f>", (i + 1), u.getNome(), u.getSaldo()));
-        }
-        comboUser.setPromptText("Selecione o Usuário");
+        Label infoConta = new Label(String.format("Conta: %s | Saldo Atual: R$ %.2f", usuarioLogado.getNome(), usuarioLogado.getSaldo()));
+        infoConta.setStyle("-fx-font-size: 16px; -fx-text-fill: #4CAF50;");
 
         TextField txtValor = new TextField();
         txtValor.setPromptText("Valor a adicionar");
 
-        Button btnAdicionar = new Button("Adicionar Saldo");
+        Button btnAdicionar = new Button("Confirmar Depósito");
+        btnAdicionar.getStyleClass().add("button-primary");
         btnAdicionar.setOnAction(e -> {
             try {
-                int index = comboUser.getSelectionModel().getSelectedIndex();
-                if (index < 0) throw new Exception("Selecione um usuário.");
-
                 double valor = Double.parseDouble(txtValor.getText());
-                User u = (User) usuarios.get(index);
-                u.adicionarSaldo(valor);
+                
+                usuarioLogado.adicionarSaldo(valor);
 
-                exibirAlerta(Alert.AlertType.INFORMATION, "Sucesso", "Novo saldo de " + u.getNome() + ": R$" + u.getSaldo());
-                root.setCenter(telaAdicionarSaldo()); // Atualiza a tela para mostrar o novo saldo na ComboBox
+                exibirAlerta(Alert.AlertType.INFORMATION, "Sucesso", "Novo saldo de " + usuarioLogado.getNome() + ": R$" + usuarioLogado.getSaldo());
+                root.setCenter(telaAdicionarSaldo()); // Atualiza a tela
+            } catch (NumberFormatException ex) {
+                exibirAlerta(Alert.AlertType.ERROR, "Erro", "Digite um valor numérico válido.");
             } catch (Exception ex) {
                 exibirAlerta(Alert.AlertType.ERROR, "Erro", ex.getMessage());
             }
         });
 
-        painel.getChildren().addAll(titulo, comboUser, txtValor, btnAdicionar);
+        painel.getChildren().addAll(titulo, infoConta, txtValor, btnAdicionar);
         return painel;
     }
 
-    private VBox telaRealizarCompra() {
-        VBox painel = new VBox(10);
+    private VBox telaVitrine() {
+        VBox painel = new VBox(15);
         painel.setPadding(new Insets(20));
 
-        Label titulo = new Label("REALIZAR COMPRA");
-        titulo.setFont(new Font("Arial", 18));
+        Label titulo = new Label("VITRINE DA LOJA");
+        titulo.setFont(new Font("Arial", 22));
 
-        ComboBox<String> comboUser = new ComboBox<>();
-        List<Object> usuarios = loja.getGerenciadorDeUser().listarTodos();
-        for (int i = 0; i < usuarios.size(); i++) {
-            User u = (User) usuarios.get(i);
-            comboUser.getItems().add(String.format("<%02d: %s | Saldo: R$%.2f>", (i + 1), u.getNome(), u.getSaldo()));
+        // Info do saldo no topo
+        HBox topBar = new HBox(15);
+        topBar.setAlignment(Pos.CENTER_LEFT);
+        
+        Label infoSaldo = new Label(String.format("Seu Saldo: R$ %.2f", usuarioLogado.getSaldo()));
+        infoSaldo.setStyle("-fx-font-size: 16px; -fx-text-fill: #4CAF50;");
+        
+        // Campo de Pesquisa
+        TextField txtBusca = new TextField();
+        txtBusca.setPromptText("Pesquisar jogo por nome...");
+        txtBusca.getStyleClass().add("search-bar");
+
+        topBar.getChildren().addAll(infoSaldo, txtBusca);
+
+        // Grid de Jogos
+        FlowPane gridJogos = new FlowPane();
+        gridJogos.setHgap(15);
+        gridJogos.setVgap(15);
+        gridJogos.setPadding(new Insets(10));
+        
+        ScrollPane scroll = new ScrollPane(gridJogos);
+        scroll.setFitToWidth(true);
+        scroll.setStyle("-fx-background-color: transparent;");
+
+        // Função para atualizar a vitrine com base na busca
+        Runnable atualizarVitrine = () -> {
+            gridJogos.getChildren().clear();
+            String termo = txtBusca.getText().toLowerCase();
+            
+            List<Object> jogos = loja.getGerenciadorDeJogo().listarTodos();
+            for (Object obj : jogos) {
+                Jogo j = (Jogo) obj;
+                if (j.getNome().toLowerCase().contains(termo)) {
+                    VBox card = criarCardJogo(j);
+                    gridJogos.getChildren().add(card);
+                }
+            }
+            if (gridJogos.getChildren().isEmpty()) {
+                gridJogos.getChildren().add(new Label("Nenhum jogo encontrado."));
+            }
+        };
+
+        // Escuta digitação na busca
+        txtBusca.textProperty().addListener((obs, oldV, newV) -> atualizarVitrine.run());
+        
+        // Inicializa a vitrine
+        atualizarVitrine.run();
+
+        painel.getChildren().addAll(titulo, topBar, scroll);
+        VBox.setVgrow(scroll, Priority.ALWAYS);
+        return painel;
+    }
+
+    private VBox criarCardJogo(Jogo j) {
+        VBox card = new VBox(10);
+        card.getStyleClass().add("game-card");
+        card.setAlignment(Pos.CENTER);
+        card.setPrefWidth(200);
+
+        ImageView imgView = new ImageView();
+        imgView.setFitWidth(150);
+        imgView.setFitHeight(200);
+        imgView.setPreserveRatio(true);
+        if (j.getUrlImagem() != null && !j.getUrlImagem().isEmpty()) {
+            try {
+                imgView.setImage(new Image(j.getUrlImagem()));
+            } catch (Exception e) {
+                // Ignore se a imagem não carregar
+            }
         }
-        comboUser.setPromptText("Selecione o Comprador");
 
-        ComboBox<String> comboJogo = new ComboBox<>();
-        List<Object> jogos = loja.getGerenciadorDeJogo().listarTodos();
-        for (int i = 0; i < jogos.size(); i++) {
-            Jogo j = (Jogo) jogos.get(i);
-            comboJogo.getItems().add(String.format("<%02d: %s | R$%.2f>", (i + 1), j.getNome(), j.getPreco()));
-        }
-        comboJogo.setPromptText("Selecione o Jogo");
+        Label lblNome = new Label(j.getNome());
+        lblNome.getStyleClass().add("game-title");
+        lblNome.setWrapText(true);
+        lblNome.setAlignment(Pos.CENTER);
 
-        Button btnComprar = new Button("Confirmar Compra");
+        Label lblTipo = new Label(j.getTipo().toString());
+        lblTipo.getStyleClass().add("game-type");
+
+        Label lblPreco = new Label(String.format("R$ %.2f", j.getPreco()));
+        lblPreco.getStyleClass().add("game-price");
+
+        Button btnComprar = new Button("Comprar");
+        btnComprar.getStyleClass().add("button-primary");
         btnComprar.setOnAction(e -> {
             try {
-                int idxUser = comboUser.getSelectionModel().getSelectedIndex();
-                int idxJogo = comboJogo.getSelectionModel().getSelectedIndex();
-
-                if (idxUser < 0 || idxJogo < 0) throw new Exception("Selecione um usuário e um jogo.");
-
-                User u = (User) usuarios.get(idxUser);
-                Jogo j = (Jogo) jogos.get(idxJogo);
-
-                Compra c = loja.realizarCompra(u.getId(), j.getId());
-                exibirAlerta(Alert.AlertType.INFORMATION, "Compra Realizada!", c.toString());
-
-                // Recarrega a tela para atualizar o saldo exibido
-                root.setCenter(telaRealizarCompra());
+                Compra c = loja.realizarCompra(usuarioLogado.getId(), j.getId());
+                exibirAlerta(Alert.AlertType.INFORMATION, "Sucesso", "Compra efetuada com sucesso!\n" + c.toString());
+                
+                // Atualizar tela para refletir saldo novo
+                root.setCenter(telaVitrine());
             } catch (Exception ex) {
                 exibirAlerta(Alert.AlertType.ERROR, "Falha na Compra", ex.getMessage());
             }
         });
 
-        painel.getChildren().addAll(titulo, comboUser, comboJogo, btnComprar);
-        return painel;
-    }
-
-    private VBox telaListarJogos() {
-        VBox painel = new VBox(10);
-        painel.setPadding(new Insets(20));
-
-        Label titulo = new Label("CATÁLOGO DE JOGOS");
-        titulo.setFont(new Font("Arial", 18));
-
-        TextArea txtArea = new TextArea();
-        txtArea.setEditable(false);
-        txtArea.setPrefHeight(400);
-
-        List<Object> jogos = loja.getGerenciadorDeJogo().listarTodos();
-        if (jogos.isEmpty()) {
-            txtArea.setText("Nenhum jogo cadastrado.");
-        } else {
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < jogos.size(); i++) {
-                Jogo j = (Jogo) jogos.get(i);
-                sb.append(String.format("<%02d: %s | Tipo: %s | Preço: R$%.2f>\n", (i + 1), j.getNome(), j.getTipo(), j.getPreco()));
-            }
-            txtArea.setText(sb.toString());
-        }
-
-        painel.getChildren().addAll(titulo, txtArea);
-        return painel;
+        card.getChildren().addAll(imgView, lblNome, lblTipo, lblPreco, btnComprar);
+        return card;
     }
 
     private VBox telaListarHistorico() {

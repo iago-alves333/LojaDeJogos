@@ -1,4 +1,11 @@
-package br.ufpb.dcx.iago.atividades.exercicio5;
+package br.ufpb.dcx.iago.atividades.exercicio5.service;
+
+import br.ufpb.dcx.iago.atividades.exercicio5.model.Compra;
+import br.ufpb.dcx.iago.atividades.exercicio5.model.User;
+import br.ufpb.dcx.iago.atividades.exercicio5.model.Jogo;
+import br.ufpb.dcx.iago.atividades.exercicio5.exception.UsuarioNaoEncontradoException;
+import br.ufpb.dcx.iago.atividades.exercicio5.exception.JogoNaoEncontradoException;
+import br.ufpb.dcx.iago.atividades.exercicio5.exception.UsuarioJaPossuiJogoException;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -26,9 +33,9 @@ public class GerenteDeJogo implements Serializable {
         User user = (User) gerenciadorDeUser.buscar(idUser);
         Jogo jogo = (Jogo) gerenciadorDeJogo.buscar(idJogo);
 
-        if (user == null) throw new Exception("Usuário não encontrado.");
-        if (jogo == null) throw new Exception("Jogo não encontrado.");
-        if (user.getBiblioteca().contains(jogo)) throw new Exception("O usuário já possui este jogo.");
+        if (user == null) throw new UsuarioNaoEncontradoException("Usuário não encontrado.");
+        if (jogo == null) throw new JogoNaoEncontradoException("Jogo não encontrado.");
+        if (user.getBiblioteca().contains(jogo)) throw new UsuarioJaPossuiJogoException("O usuário já possui este jogo.");
 
         // Regra de negócio: debita saldo e adiciona jogo
         user.debitarSaldo(jogo.getPreco());

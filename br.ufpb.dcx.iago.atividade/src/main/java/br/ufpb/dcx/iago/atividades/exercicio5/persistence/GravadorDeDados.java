@@ -1,4 +1,5 @@
-package br.ufpb.dcx.iago.atividades.exercicio5;
+package br.ufpb.dcx.iago.atividades.exercicio5.persistence;
+
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;

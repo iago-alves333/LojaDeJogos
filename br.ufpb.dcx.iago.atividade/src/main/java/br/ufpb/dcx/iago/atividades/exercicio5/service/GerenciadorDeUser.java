@@ -1,4 +1,9 @@
-package br.ufpb.dcx.iago.atividades.exercicio5;
+package br.ufpb.dcx.iago.atividades.exercicio5.service;
+
+import br.ufpb.dcx.iago.atividades.exercicio5.model.User;
+import br.ufpb.dcx.iago.atividades.exercicio5.exception.TipoObjetoInvalidoException;
+import br.ufpb.dcx.iago.atividades.exercicio5.exception.UsuarioJaExisteException;
+import br.ufpb.dcx.iago.atividades.exercicio5.exception.UsuarioNaoEncontradoException;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -17,12 +22,12 @@ public class GerenciadorDeUser implements Gerenciador, Serializable {
     @Override
     public void adicionar(Object entidade) throws Exception {
         if (!(entidade instanceof User)) {
-            throw new Exception("Erro: Objeto não é do tipo User.");
+            throw new TipoObjetoInvalidoException("Erro: Objeto não é do tipo User.");
         }
 
         User user = (User) entidade;
         if (existe(user.getId())) {
-            throw new Exception("O usuário " + user.getNome() + " já está cadastrado.");
+            throw new UsuarioJaExisteException("O usuário " + user.getNome() + " já está cadastrado.");
         }
         usuarios.put(user.getId(), user);
     }
@@ -40,7 +45,7 @@ public class GerenciadorDeUser implements Gerenciador, Serializable {
     @Override
     public void remover(String id) throws Exception {
         if (!existe(id)) {
-            throw new Exception("Usuário não encontrado.");
+            throw new UsuarioNaoEncontradoException("Usuário não encontrado.");
         }
         usuarios.remove(id);
     }

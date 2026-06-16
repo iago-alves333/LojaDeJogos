@@ -1,4 +1,4 @@
-package br.ufpb.dcx.iago.atividades.exercicio5;
+package br.ufpb.dcx.iago.atividades.exercicio5.model;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;

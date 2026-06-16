@@ -1,10 +1,14 @@
-package br.ufpb.dcx.iago.atividades.exercicio5;
+package br.ufpb.dcx.iago.atividades.exercicio5.service;
+
+import br.ufpb.dcx.iago.atividades.exercicio5.model.Jogo;
+import br.ufpb.dcx.iago.atividades.exercicio5.exception.JogoJaExisteException;
+import br.ufpb.dcx.iago.atividades.exercicio5.exception.TipoObjetoInvalidoException;
+import br.ufpb.dcx.iago.atividades.exercicio5.exception.JogoNaoEncontradoException;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
 import java.util.Map;
 
 public class GerenciadorDeJogo implements Gerenciador, Serializable {
@@ -18,7 +22,7 @@ public class GerenciadorDeJogo implements Gerenciador, Serializable {
     @Override
     public void adicionar(Object entidade) throws Exception {
         if (!(entidade instanceof Jogo)) {
-            throw new Exception("Erro: Objeto não é do tipo Jogo.");
+            throw new TipoObjetoInvalidoException("Erro: Objeto não é do tipo Jogo.");
         }
 
         Jogo jogo = (Jogo) entidade;
@@ -41,7 +45,7 @@ public class GerenciadorDeJogo implements Gerenciador, Serializable {
     @Override
     public void remover(String id) throws Exception {
         if (!existe(id)) {
-            throw new Exception("Jogo não encontrado.");
+            throw new JogoNaoEncontradoException("Jogo não encontrado.");
         }
         catalogo.remove(id);
     }
