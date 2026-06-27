@@ -22,3 +22,24 @@ O sistema simula uma **Loja de Jogos Digital**, onde:
 
 4. **Interface e Javadoc:**
    - A interface `SistemaLojaDeJogos` foi criada contendo documentação via Javadoc para todos os seus métodos, em especial `realizarCompra`, `salvarDados()` e `recuperarDados()`. A classe principal, `GerenteDeJogo`, implementa os métodos desta interface.
+
+---
+
+# Sistema de Funcionários Bom Prato (Exercício 6)
+
+Este repositório também contém a implementação do Sistema de Funcionários (Exercício 6) abordando o gerenciamento de funcionários em um restaurante (Bom Prato).
+
+## O que foi implementado de acordo com a Atividade:
+
+1. **Classes de Modelo e Enumeradores:**
+   - Foram criadas a classe `Funcionario` e o enumerador `TipoFuncionario` para representar os dados e as categorias dos funcionários (ex: GERENTE, CAIXA, COZINHEIRO, etc).
+
+2. **Sistema e Interface:**
+   - A interface `SistemaFuncionarios` define os contratos para cadastro, pesquisa e demais operações.
+   - A classe `SistemaFuncionariosBomPrato` implementa essa interface utilizando a estrutura de dados `Map<String, Funcionario>` (especificamente `HashMap`) para gerenciar os funcionários com base em seus CPFs.
+
+3. **Tratamento de Exceções:**
+   - Foram implementadas e integradas as exceções customizadas `FuncionarioJaExisteException` e `FuncionarioInexistenteException` para validações e fluxos alternativos de erro.
+
+4. **Testes Unitários:**
+   - A classe de testes `SistemaFuncionariosBomPratoTest` foi desenvolvida utilizando a biblioteca JUnit, garantindo a integridade dos métodos de cadastro, verificação de existência e pesquisas de funcionários.
