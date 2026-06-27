@@ -54,6 +54,18 @@ public class Main extends Application {
 
         primaryStage.setTitle("Sistema de Loja de Jogos");
         primaryStage.setScene(scene);
+
+        primaryStage.setOnCloseRequest(event -> {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Tem certeza que deseja fechar o programa?", ButtonType.YES, ButtonType.NO);
+            alert.setTitle("Confirmação de Saída");
+            alert.setHeaderText(null);
+            alert.showAndWait().ifPresent(resposta -> {
+                if (resposta != ButtonType.YES) {
+                    event.consume();
+                }
+            });
+        });
+
         primaryStage.show();
     }
 
@@ -300,6 +312,9 @@ public class Main extends Application {
 
                 exibirAlerta(Alert.AlertType.INFORMATION, "Sucesso", "Usuário cadastrado com sucesso! ID gerado: " + novoUser.getId());
                 txtNome.clear(); txtSaldo.clear(); txtSenha.clear();
+                if (usuarioLogado == null) {
+                    root.setCenter(telaLogin());
+                }
             } catch (NumberFormatException ex) {
                 exibirAlerta(Alert.AlertType.ERROR, "Erro", "Digite um valor numérico válido para o saldo.");
             } catch (Exception ex) {

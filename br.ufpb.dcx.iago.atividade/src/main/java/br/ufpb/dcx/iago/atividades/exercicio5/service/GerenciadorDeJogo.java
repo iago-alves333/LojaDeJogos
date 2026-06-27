@@ -54,4 +54,24 @@ public class GerenciadorDeJogo implements Gerenciador, Serializable {
     public boolean existe(String id) {
         return catalogo.containsKey(id);
     }
+
+    /**
+     * Busca jogos que contenham o nome especificado.
+     * @param nome O nome ou parte do nome do jogo a ser buscado.
+     * @return Uma lista de jogos que correspondem à busca.
+     */
+    public List<Jogo> buscarPorNome(String nome) {
+        List<Jogo> resultados = new ArrayList<>();
+        if (nome == null || nome.trim().isEmpty()) {
+            return resultados;
+        }
+        
+        String busca = nome.toLowerCase();
+        for (Jogo jogo : catalogo.values()) {
+            if (jogo.getNome().toLowerCase().contains(busca)) {
+                resultados.add(jogo);
+            }
+        }
+        return resultados;
+    }
 }

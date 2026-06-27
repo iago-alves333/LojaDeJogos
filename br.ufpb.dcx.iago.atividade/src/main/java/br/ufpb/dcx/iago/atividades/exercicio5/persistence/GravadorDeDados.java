@@ -13,7 +13,6 @@ public class GravadorDeDados {
         this.nomeArquivo = nomeArquivo;
     }
 
-    // Exceção IOException declarada explicitamente conforme solicitado
     public void gravar(Object objeto) throws IOException {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(nomeArquivo))) {
             oos.writeObject(objeto);

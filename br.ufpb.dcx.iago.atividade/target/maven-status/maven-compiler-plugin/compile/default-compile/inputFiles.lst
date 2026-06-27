@@ -5,6 +5,7 @@
 /home/iago/IdeaProjects/LojaDeJogos/br.ufpb.dcx.iago.atividade/src/main/java/br/ufpb/dcx/iago/atividades/exercicio6/SistemaFuncionariosBomPrato.java
 /home/iago/IdeaProjects/LojaDeJogos/br.ufpb.dcx.iago.atividade/src/main/java/br/ufpb/dcx/iago/atividades/exercicio5/service/GerenciadorDeUser.java
 /home/iago/IdeaProjects/LojaDeJogos/br.ufpb.dcx.iago.atividade/src/main/java/br/ufpb/dcx/iago/atividades/exercicio5/exception/UsuarioJaPossuiJogoException.java
+/home/iago/IdeaProjects/LojaDeJogos/br.ufpb.dcx.iago.atividade/src/main/java/br/ufpb/dcx/iago/atividades/exercicio5/service/SistemaLojaDeJogos.java
 /home/iago/IdeaProjects/LojaDeJogos/br.ufpb.dcx.iago.atividade/src/main/java/br/ufpb/dcx/iago/atividades/exercicio5/exception/JogoJaExisteException.java
 /home/iago/IdeaProjects/LojaDeJogos/br.ufpb.dcx.iago.atividade/src/main/java/br/ufpb/dcx/iago/atividades/exercicio5/service/GerenteDeJogo.java
 /home/iago/IdeaProjects/LojaDeJogos/br.ufpb.dcx.iago.atividade/src/main/java/br/ufpb/dcx/iago/atividades/exercicio5/Launcher.java

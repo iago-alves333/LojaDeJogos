@@ -7,11 +7,13 @@ import br.ufpb.dcx.iago.atividades.exercicio5.exception.UsuarioNaoEncontradoExce
 import br.ufpb.dcx.iago.atividades.exercicio5.exception.JogoNaoEncontradoException;
 import br.ufpb.dcx.iago.atividades.exercicio5.exception.UsuarioJaPossuiJogoException;
 
+import java.io.IOException;
+import br.ufpb.dcx.iago.atividades.exercicio5.persistence.GravadorDeDados;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GerenteDeJogo implements Serializable {
+public class GerenteDeJogo implements Serializable, SistemaLojaDeJogos {
     private static final long serialVersionUID = 1L;
 
     private GerenciadorDeJogo gerenciadorDeJogo;
@@ -46,5 +48,29 @@ public class GerenteDeJogo implements Serializable {
         historicoDeCompras.add(novaCompra);
 
         return novaCompra;
+    }
+
+    @Override
+    public void salvarDados() throws IOException {
+        GravadorDeDados gravador = new GravadorDeDados("sistema.dat");
+        gravador.gravar(this);
+    }
+
+    @Override
+    public void recuperarDados() throws IOException {
+        GravadorDeDados gravador = new GravadorDeDados("sistema.dat");
+        try {
+            GerenteDeJogo recuperado = (GerenteDeJogo) gravador.recuperar();
+            this.gerenciadorDeJogo = recuperado.gerenciadorDeJogo;
+            this.gerenciadorDeUser = recuperado.gerenciadorDeUser;
+            this.historicoDeCompras = recuperado.historicoDeCompras;
+        } catch (ClassNotFoundException e) {
+            throw new IOException("Classe não encontrada ao recuperar dados", e);
+        }
+    }
+
+    @Override
+    public List<Jogo> pesquisarJogosPorNome(String nome) {
+        return this.gerenciadorDeJogo.buscarPorNome(nome);
     }
 }
